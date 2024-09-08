@@ -1,6 +1,7 @@
 #include "kernel/types.h"
 #include "user.h"
 
+__attribute__((noreturn))
 void primes(int* left) {
     int p1[2];
     pipe(p1);
