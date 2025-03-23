@@ -5,6 +5,10 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
+
+extern uint64 mem_free(void); // kalloc.c
+extern uint64 nproc(void); // proc.c
 
 uint64
 sys_exit(void)
@@ -98,5 +102,21 @@ sys_trace(void)
   int num;
   argint(0, &num);
   myproc()->mask = num;
+  return 0;
+}
+
+uint64
+sys_sysinfo(void)
+{
+  uint64 info;
+  uint64 freemem, num_proc;
+  struct proc *p = myproc();
+  argaddr(0, &info);
+  freemem = mem_free();
+  num_proc = nproc();
+  if(copyout(p->pagetable, info, (char*)&freemem, sizeof(freemem)) < 0 ||
+  copyout(p->pagetable, info+sizeof(freemem), (char*)&num_proc, sizeof(num_proc)) < 0) {
+    return -1;
+  }
   return 0;
 }

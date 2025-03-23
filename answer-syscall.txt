@@ -1,0 +1,22 @@
+1. Looking at the backtrace output, which function called syscall?
+- `kernel/trap.c` called `syscall()`
+2. What is the value of `p->trapframe->a7` and what does that value represent?
+- `p->trapframe->a7=7` which represents `SYS_exec`(defined in `kernel/syscall.h`), this value is passed by `/init`(in `user/initcode.S`) , the first user program that xv6 starts.
+3. What was the previous mode that the CPU was in?
+- The first user program called the `syscall` with `SYS_exec`, the previous mode CPU was in is user mode.
+Replace the statement `num = p->trapframe->a7` with `num = * (int *) 0` at the beginning of syscall, run make qemu, and you will see something similar to: 
+```bash
+xv6 kernel is booting
+
+hart 1 starting
+hart 2 starting
+scause 0x000000000000000d
+sepc=0x0000000080002054 stval=0x0000000000000000
+panic: kerneltrap
+```
+4. Write down the assembly instruction the kernel is panicing at. Which register corresponds to the variable num? Search the spec value in `kernel/kernel.asm`
+- The assembly instruction is `80002054: 00002683 lw a3,0(zero)`. Register `a3` stores the variable `num`
+4. Why does the kernel crash? Hint: look at figure 3-3 in the text; is address 0 mapped in the kernel address space? Is that confirmed by the value in scause above? (See description of scause in [RISC-V privileged instructions](zotero://select/library/items/YMH9LP2F))
+- Kernel address starts at 0x80000000, the scause value is `0xd` which corresponding to `Load page fault`
+5. What is the name of the binary that was running when the kernel paniced? What is its process id (pid)?
+- `initcode` was running and the process id is `1`
