@@ -75,6 +75,16 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 va;
+  int pg_num;
+  uint64 mask = 0, abits;
+  pagetable_t pg = myproc()->pagetable;
+  argaddr(0, &va);
+  argint(1, &pg_num);
+  argaddr(2, &abits);
+  if(pgaccess(pg, va, pg_num, &mask) < 0)
+    return -1;
+  copyout(pg, abits, (char *)&mask, sizeof(mask));
   return 0;
 }
 #endif

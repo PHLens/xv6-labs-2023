@@ -473,3 +473,20 @@ vmprint(pagetable_t pagetable)
   printf("page table %p\n", pagetable);
   vmprint_helper(pagetable, 0);
 }
+
+int
+pgaccess(pagetable_t pagetable, uint64 va, int pg_num, uint64 *mask)
+{
+  if(pg_num > MAX_PGACCESS_SIZE)
+    panic("pgaccess");
+
+  for(int i = 0; i < pg_num; i++) {
+    pte_t* pte = walk(pagetable, va + PGSIZE * i, 0);
+    if(pte && (*pte & PTE_A)) {
+      *mask |= (1L << i);
+      // reset PTE_A for next pgaccess().
+      *pte &= ~PTE_A;
+    }
+  }
+  return 0;
+}
