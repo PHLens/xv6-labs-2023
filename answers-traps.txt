@@ -1,0 +1,34 @@
+Which registers contain arguments to functions? For example, which register holds 13 in main's call to printf?
+- a0-a1 Function Arguments/Return value
+- a2-a7 Function Arguments
+- a2 holds the value `13`
+- a1 holds the value of `f(8)+1` which has been optimized to `12` by compiler.
+
+Where is the call to function f in the assembly code for main? Where is the call to g? (Hint: the compiler may inline functions.)
+- The compiler inline the call to function f and write the value `12` to printf argument 1
+
+At what address is the function printf located?
+- 30:	00000097          	auipc	ra,0x0  => ra = 30 + 0 = 30
+- 34:	61a080e7          	jalr	1562(ra) # 64a <printf>  => printf = ra + 1562 = 64a
+
+What value is in the register ra just after the jalr to printf in main?
+- the PC + 4 = 34 + 4 = 38, which is the address of the next instruction of jalr, is written to ra.
+
+Run the following code.
+```c
+	unsigned int i = 0x00646c72;
+	printf("H%x Wo%s", 57616, &i);
+```   
+What is the output? The output depends on that fact that the RISC-V is little-endian.
+If the RISC-V were instead big-endian what would you set i to in order to yield the same output?
+Would you need to change 57616 to a different value?
+- Output: `HE110 World`. 
+- The 57616 is `E110` in hex
+- In ASCII table, 64 = d, 6c = l, 72 = r, when it comes to little-endian, i = 0x00646c72, and 0x00726c64 otherwise
+- No need to change `57616`
+
+In the following code, what is going to be printed after 'y='? (note: the answer is not a specific value.) Why does this happen?
+```c
+	printf("x=%d y=%d", 3);
+```
+- The result is undefined behavior. The format string is parsed by printf using `__builtin_va_arg` which get value by advancing pointer to memory, this can cause undefined behavior.
