@@ -82,7 +82,11 @@ usertrap(void)
     yield();
   }
 
-  if(p->ticks == p->interval && p->interval) {
+  if(p->ticks == p->interval && p->interval && !p->inalarm) {
+    // prevent re-enterant calls to handler
+    p->inalarm = 1;
+    // Save the registers for sigreturn
+    *p->alarm_trapframe = *p->trapframe;
     // Call the user alarm handler
     p->trapframe->epc = p->fn;
     // Reset p->ticks otherwise the process will get stucked.

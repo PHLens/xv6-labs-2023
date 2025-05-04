@@ -105,5 +105,11 @@ sys_sigalarm(void)
 uint64
 sys_sigreturn(void)
 {
+  struct proc* p = myproc();
+  // prevent re-enterant calls to handler
+  if (p->inalarm) {
+    *p->trapframe = *p->alarm_trapframe;
+    p->inalarm = 0;
+  }
   return 0;
 }
